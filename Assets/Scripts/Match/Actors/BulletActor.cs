@@ -18,6 +18,9 @@ namespace Assets.Scripts.Match.Actors
 
         private readonly float createTime;
 
+        //temp solution
+        public int owner;
+
         public int Direction { get; private set; }
 
         public BulletActor(ActorManager actorManager, ActorPointer actorPointer) : base(actorManager, actorPointer)

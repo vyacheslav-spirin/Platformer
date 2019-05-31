@@ -151,5 +151,26 @@ namespace Assets.Scripts.Match.Multiplayer
 
             base.ProcessKickAction(characterActor);
         }
+
+        protected override void ProcessCreatedBullet(CharacterActor creator, BulletActor bulletActor)
+        {
+            for (var i = 0; i < actors.Length; i++)
+            {
+                if (actors[i] == creator.actorPointer)
+                {
+                    bulletActor.owner = i;
+
+                    return;
+                }
+            }
+        }
+
+        protected override void ProcessKillScore(int owner)
+        {
+            var multiplayerMatchManager = (MultiplayerMatchManager) matchManager;
+
+            var player = multiplayerMatchManager.players[owner];
+            if (player != null) player.kills++;
+        }
     }
 }

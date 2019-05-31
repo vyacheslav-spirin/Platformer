@@ -73,16 +73,9 @@ namespace Assets.Scripts.Match
             matchManager.actorManager.DestroyActor(actor.actorPointer);
         }
 
-        public virtual void ProcessBulletHit(BulletActor actor, Collider collider)
+        public virtual void ProcessBulletHit(BulletActor bulletActor, Collider collider)
         {
             var actorManager = matchManager.actorManager;
-
-            var explosion = (ExplosionActor) actorManager.CreateActor(ActorType.Explosion);
-
-            explosion.Pos = actor.Pos;
-            explosion.UpdateDirection(actor.Direction);
-
-            actorManager.DestroyActor(actor.actorPointer);
 
             var characterActor = (CharacterActor) matchManager.actorManager.firstTypeActors[(byte) ActorType.Character];
             if (characterActor == null) return;
@@ -93,17 +86,28 @@ namespace Assets.Scripts.Match
                 {
                     const int bulletDamage = 30;
 
-                    if(characterActor.health <= bulletDamage) actorManager.DestroyActor(characterActor.actorPointer);
+                    if (characterActor.health <= bulletDamage)
+                    {
+                        ProcessActorDeath(characterActor);
+
+                        ProcessKillScore(bulletActor.owner);
+                    }
                     else
                     {
                         characterActor.health -= bulletDamage;
                     }
 
-                    return;
+                    break;
                 }
 
-            } while ((characterActor = (CharacterActor)characterActor.nextSameTypeActor) != null);
+            } while ((characterActor = (CharacterActor) characterActor.nextSameTypeActor) != null);
 
+            actorManager.DestroyActor(bulletActor.actorPointer);
+
+            var explosion = (ExplosionActor) actorManager.CreateActor(ActorType.Explosion);
+
+            explosion.Pos = bulletActor.Pos;
+            explosion.UpdateDirection(bulletActor.Direction);
 
             var blockActor = (BlockActor) matchManager.actorManager.firstTypeActors[(byte) ActorType.Block];
             if (blockActor == null) return;
@@ -114,7 +118,7 @@ namespace Assets.Scripts.Match
                 {
                     actorManager.DestroyActor(blockActor.actorPointer);
 
-                    return;
+                    break;
                 }
 
             } while ((blockActor = (BlockActor) blockActor.nextSameTypeActor) != null);
@@ -129,6 +133,16 @@ namespace Assets.Scripts.Match
             bullet.Pos = characterActor.Pos + new Vector2(characterActor.lookDirection > 0 ? 0.7f : -0.7f, 0.5f);
 
             Physics.IgnoreCollision(characterActor.collider, bullet.collider, true);
+
+            ProcessCreatedBullet(characterActor, bullet);
+        }
+
+        protected virtual void ProcessCreatedBullet(CharacterActor creator, BulletActor bulletActor)
+        {
+        }
+
+        protected virtual void ProcessKillScore(int owner)
+        {
         }
     }
 }

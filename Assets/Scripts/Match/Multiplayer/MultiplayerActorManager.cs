@@ -192,9 +192,16 @@ namespace Assets.Scripts.Match.Multiplayer
 
                 actorSyncData.moveDirection = packetReader.ReadByte() - 1;
 
-                var characterActor = (CharacterActor) actor;
+                var multiplayerMatchManager = (MultiplayerMatchManager) matchManager;
 
-                characterActor.health = packetReader.ReadByte();
+                var health = packetReader.ReadByte();
+
+                var characterActor = (CharacterActor)actor;
+
+                if (!multiplayerMatchManager.isHost)
+                {
+                    characterActor.health = health;
+                }
 
                 var action = (CharacterActor.CharacterAction) packetReader.ReadByte();
 
