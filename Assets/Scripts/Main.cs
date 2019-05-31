@@ -156,6 +156,8 @@ namespace Assets.Scripts
         [UsedImplicitly]
         private void Update()
         {
+            Application.targetFrameRate = 60;
+
             callFixedUpdateTime += Time.deltaTime;
 
             FixedTimeLerpValue = callFixedUpdateTime / Time.fixedDeltaTime;
